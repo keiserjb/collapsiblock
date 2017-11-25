@@ -9,6 +9,7 @@
       var cookieData = Drupal.Collapsiblock.getCookieData();
       var slidetype = settings.collapsiblock.slide_type;
       var defaultState = settings.collapsiblock.default_state;
+      var activePages = settings.collapsiblock.active_pages;
       var slidespeed = parseInt(settings.collapsiblock.slide_speed,10);
       var title = settings.collapsiblock.block_title;
       var block = settings.collapsiblock.block;
@@ -79,15 +80,18 @@
           $('a[role=link]', titleElt).click(function (e) {
             e.preventDefault();
           });
-          // Leave active blocks uncollapsed. If the block is expanded, do nothing.
-          if (stat ==  4 || (cookieData[id] == 0 || (stat == 3 && cookieData[id] == undefined)) && !$(this).find('a.active').size()) {
-            // Allow block content to assign class 'collapsiblock-force-open' to it's content to force
-            // itself to stay open. E.g. useful if block contains a form that was just ajaxly updated and should be visible
-            if (titleElt.target.hasClass('collapsiblock-force-open') || titleElt.target.find('.collapsiblock-force-open').size() > 0) {
-              return;
+          // Leave active blocks if Remember collapsed on active pages is false.
+          // If the block is expanded, do nothing.
+          if (stat ==  4 || (cookieData[id] == 0 || (stat == 3 && cookieData[id] == undefined))) {
+            if (!$(this).find('a.active').size() || activePages === 1) {
+              // Allow block content to assign class 'collapsiblock-force-open' to it's content to force
+              // itself to stay open. E.g. useful if block contains a form that was just ajaxly updated and should be visible
+              if (titleElt.target.hasClass('collapsiblock-force-open') || titleElt.target.find('.collapsiblock-force-open').size() > 0) {
+                return;
+              }
+              $(titleElt).addClass('collapsiblockCollapsed');
+              $(titleElt.target).hide();
             }
-            $(titleElt).addClass('collapsiblockCollapsed');
-            $(titleElt.target).hide();
           }
         }
       });
