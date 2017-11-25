@@ -6,6 +6,22 @@
  */
 
 /**
+ * Implements hook_install().
+ */
+function collapsiblock_install() {
+  $schema['block'] = array();
+  collapsiblock_schema_alter($schema);
+  foreach ($schema['block']['fields'] as $field => $spec) {
+    if (db_field_exists('block', $field)) {
+      watchdog('system', 'Module install: Attempt to recreate field: "%field", when it already exists.', array('%field' => $field), WATCHDOG_WARNING);
+    }
+    else {
+      db_add_field('block', $field, $spec);
+    }
+  }
+}
+
+/**
  * Implements hook_uninstall.
  */
 function collapsiblock_uninstall() {
@@ -15,4 +31,26 @@ function collapsiblock_uninstall() {
   variable_del('collapsiblock_slide_speed');
   variable_del('collapsiblock_settings');
   variable_del('collapsiblock_active_pages');
+  $schema['block'] = array();
+  collapsiblock_schema_alter($schema);
+  foreach ($schema['block']['fields'] as $field => $specs) {
+    db_drop_field('block', $field);
+  }
+}
+
+/**
+ * Implements hook_schema_alter().
+ *
+ * Other modules, such as i18n_block also modify the block database table.
+ */
+function collapsiblock_schema_alter(&$schema) {
+  if (isset($schema['block'])) {
+    $schema['block']['fields']['collapsiblock_action'] = array(
+      'type' => 'int',
+      'length' => 1,
+      'not null' => TRUE,
+      'default' => 0,
+      'description' => 'Integer containing the key for the collapse action.',
+    );
+  }
 }

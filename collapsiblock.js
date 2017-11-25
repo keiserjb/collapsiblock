@@ -11,12 +11,9 @@
       var defaultState = settings.collapsiblock.default_state;
       var activePages = settings.collapsiblock.active_pages;
       var slidespeed = parseInt(settings.collapsiblock.slide_speed,10);
-      var title = settings.collapsiblock.block_title;
-      var block = settings.collapsiblock.block;
-      var block_content = settings.collapsiblock.block_content;
-      $(block + ':not(.collapsiblock-processed)', context).addClass('collapsiblock-processed').each(function () {
+      $('.collapsiblock').once('collapsiblock', function () {
         var id = this.id.replace(/_/g, '-');
-        var titleElt = $(title, this).not($('.content :header',this));
+        var titleElt = $(this);
         if (titleElt.size()) {
           titleElt = titleElt[0];
           // Status values: 1 = not collapsible, 2 = collapsible and expanded, 3 = collapsible and collapsed, 4 = always collapsed
@@ -25,10 +22,10 @@
             return;
           }
 
-          titleElt.target = $(this).find(block_content);
+          titleElt.target = $(this).siblings().not($('.contextual-links-wrapper'));
+          console.log(titleElt.target);
           $(titleElt)
           .wrapInner('<a href="#' + id +'" role="link" />')
-          .addClass('collapsiblock')
           .click(function (e) {
             e.preventDefault();  
             var st = Drupal.Collapsiblock.getCookieData();

@@ -5,6 +5,14 @@
  * Make blocks collapsible.
  */
 
+define('COLLAPSIBLOCK_ACTION_OPTIONS', array(
+  1 => t('None.'),
+  2 => t('Collapsible, expanded by default.'),
+  3 => t('Collapsible, collapsed by default.'),
+  5 => t('Collapsible, expanded all the time.'),
+  4 => t('Collapsible, collapsed all the time.'),
+));
+
 /**
  * Implements hook_init().
  */
@@ -54,7 +62,7 @@ function collapsiblock_admin_settings($form, &$form_state) {
   $form['collapsiblock_default_state'] = array(
     '#type' => 'radios',
     '#title' => t('Default block collapse behavior'),
-    '#options' => array(1 => t('None.'), 2 => t('Collapsible, expanded by default.'), 3 => t('Collapsible, collapsed by default.'), 4 => t('Collapsible, collapsed all the time.')),
+    '#options' => COLLAPSIBLOCK_ACTION_OPTIONS,
     '#default_value' => variable_get('collapsiblock_default_state', 1),
   );
   $form['collapsiblock_active_pages'] = array(
@@ -80,7 +88,7 @@ function collapsiblock_admin_settings($form, &$form_state) {
   $form['collapsiblock_help'] = array(
     '#markup' => t('If collapsiblock doesn\'t work out of the box, you can force CSS selectors on <a href="!url">appearance settings</a>.', array('!url' => url('admin/appearance/settings'))),
   );
-  
+
   $form = system_settings_form($form);
   return $form;
 }
@@ -133,7 +141,10 @@ function collapsiblock_form_alter(&$form, $form_state, $form_id) {
   }
 
   if ($form_id == 'block_admin_configure') {
-    $settings = variable_get('collapsiblock_settings', array());
+    // Load statically cached block object used to display the form.
+    $block = block_load($form['module']['#value'], $form['delta']['#value']);
+
+    //$settings = variable_get('collapsiblock_settings', array());
     $form['#submit'][] = 'collapsiblock_submit';
     $form['collapsiblock'] = array(
       '#type' => 'fieldset',
@@ -142,16 +153,17 @@ function collapsiblock_form_alter(&$form, $form_state, $form_id) {
       '#weight' => -5
     );
 
-    if (isset($settings['block-' . str_replace('_', '-', $form['module']['#value']) . '-' . str_replace('_', '-', $form['delta']['#value'])])) {
-      $default_value = $settings['block-' . str_replace('_', '-', $form['module']['#value']) . '-' . str_replace('_', '-', $form['delta']['#value'])] ? $settings['block-' . str_replace('_', '-', $form['module']['#value']) . '-' . str_replace('_', '-', $form['delta']['#value'])] : variable_get('collapsiblock_default_state', 1);
-    } else {
-      $default_value = 1;
-    }
-    $form['collapsiblock']['collapse_type'] = array(
+    // Add the global default to the list of options for the per-block setting.
+    $options = COLLAPSIBLOCK_ACTION_OPTIONS;
+    $default = variable_get('collapsiblock_default_state', 1);
+    $default = $options[$default];
+    $options = array(0 => 'Global default, currently set to: ' . $default) + $options;
+
+    $form['collapsiblock']['collapsiblock_action'] = array(
       '#type' => 'radios',
       '#title' => t('Block collapse behavior'),
-      '#options' => array(1 => t('None.'), 2 => t('Collapsible, expanded by default.'), 3 => t('Collapsible, collapsed by default.'), 4 => t('Collapsible, collapsed all the time.')),
-      '#default_value' => $default_value,
+      '#options' => $options,
+      '#default_value' => isset($block->collapsiblock_action) ? $block->collapsiblock_action : 0,
     );
   }
 }
@@ -163,7 +175,31 @@ function collapsiblock_form_alter(&$form, $form_state, $form_id) {
  * @see collapsiblock_form_alter()
  */
 function collapsiblock_submit($form, &$form_state) {
-  $settings = variable_get('collapsiblock_settings', array());
-  $settings['block-' . str_replace('_', '-', $form_state['values']['module']) . '-' . drupal_strtolower(str_replace('_', '-', $form_state['values']['delta']))] = $form_state['values']['collapse_type'];
-  variable_set('collapsiblock_settings', $settings);
+  if ($form_state['values']['form_id'] == 'block_admin_configure' || $form_state['values']['form_id'] == 'block_add_block_form') {
+    // Only save if value has changed.
+    if (isset($form_state['values']['collapsiblock_action'])
+      && $form['collapsiblock']['collapsiblock_action']['#default_value'] != $form_state['values']['collapsiblock_action']
+      && user_access('administer blocks')) {
+      db_update('block')
+        ->fields(array('collapsiblock_action' => $form_state['values']['collapsiblock_action']))
+        ->condition('module', $form_state['values']['module'])
+        ->condition('delta', $form_state['values']['delta'])
+        ->execute();
+    }
+  }
+
+
+//  $settings = variable_get('collapsiblock_settings', array());
+//  $settings['block-' . str_replace('_', '-', $form_state['values']['module']) . '-' . drupal_strtolower(str_replace('_', '-', $form_state['values']['delta']))] = $form_state['values']['collapse_type'];
+//  variable_set('collapsiblock_settings', $settings);
+}
+
+function collapsiblock_process_block(&$variables) {
+//  $id = 'collapsiblock-wrapper-' . $variables['id'];
+//  $variables['title_prefix']['collapsiblock'] = array(
+//    '#markup' => '<div class="collapsiblock" id="' . $id . '">'
+//  );
+//  $variables['title_suffix']['collapsiblock'] = array(
+//    '#markup' => '</div>'
+//  );
 }
