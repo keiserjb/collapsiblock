@@ -10,7 +10,7 @@
       var activePages = settings.collapsiblock.active_pages;
       var slidespeed = parseInt(settings.collapsiblock.slide_speed, 10);
       $('.collapsiblock').once('collapsiblock', function () {
-        var id = this.id.replace(/_/g, '-');
+        var id = this.id.split("-").pop();
         var titleElt = $(this);
         if (titleElt.size()) {
           titleElt = titleElt[0];
@@ -24,10 +24,8 @@
 
           titleElt.target = $(this).siblings().not($('.contextual-links-wrapper'));
           $(titleElt)
-          .wrapInner('<a href="#' + id + '" role="link" />')
+          .wrapInner('<a href="#collapse-' + id + '" role="link" />')
           .click(function (e) {
-            e.preventDefault();
-            var st = Drupal.Collapsiblock.getCookieData();
             if ($(this).is('.collapsiblockCollapsed')) {
               $(this).removeClass('collapsiblockCollapsed');
               if (slidetype == 1) {
@@ -41,8 +39,8 @@
               }
 
               // Don't save cookie data if the block is always collapsed.
-              if (stat != 4) {
-                st[id] = 1;
+              if (stat != 4 && stat != 5) {
+                cookieData[id] = 1;
               }
             }
             else {
@@ -58,23 +56,15 @@
               }
 
               // Don't save cookie data if the block is always collapsed.
-              if (stat != 4) {
-                st[id] = 0;
+              if (stat != 4 && stat != 5) {
+                cookieData[id] = 0;
               }
             }
             // Stringify the object in JSON format for saving in the cookie.
-            var cookieString = '{ ';
-            var cookieParts = [];
-            $.each(st, function (id, setting) {
-              cookieParts[cookieParts.length] = ' "' + id + '": ' + setting;
-            });
-            cookieString += cookieParts.join(', ') + ' }';
+            cookieString = JSON.stringify(cookieData);
             $.cookie('collapsiblock', cookieString, {
               path: settings.basePath
             });
-          });
-          $('a[role=link]', titleElt).click(function (e) {
-            e.preventDefault();
           });
           // Leave active blocks if Remember collapsed on active pages is false.
           // If the block is expanded, do nothing.
