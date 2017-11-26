@@ -151,6 +151,7 @@ function collapsiblock_process_block(&$variables) {
   if ($action != 1) {
     $id = 'collapsiblock-wrapper-' . $block->bid;
     $classes[] = 'collapsiblock';
+
     $variables['title_prefix']['collapsiblock'] = array(
       '#markup' => '<div id="' . $id . '" class="' . implode(' ', $classes) . '" data-collapsiblock-action="' . $action . '">'
     );

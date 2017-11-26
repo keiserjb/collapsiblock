@@ -18,7 +18,7 @@
           // Status values: 1 = not collapsible, 2 = collapsible and expanded,
           // 3 = collapsible and collapsed, 4 = always collapsed,
           // 5 = always expanded
-          var stat = $(this).data('collapsiblock_action');
+          var stat = $(this).data('collapsiblock-action');
           if (stat == 1) {
             return;
           }
