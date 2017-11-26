@@ -14,7 +14,7 @@ define('COLLAPSIBLOCK_ACTION_OPTIONS', array(
 ));
 
 /**
-* Implements hook_init().
+ * Implements hook_init().
  */
 function collapsiblock_init() {
   //load the settings
@@ -75,7 +75,17 @@ function collapsiblock_admin_settings($form, &$form_state) {
   $form['collapsiblock_slide_speed'] = array(
     '#type' => 'select',
     '#title' => t('Animation speed'),
-    '#options' => drupal_map_assoc(array('50', '100', '200', '300', '400', '500', '700', '1000', '1300')),
+    '#options' => drupal_map_assoc(array(
+      '50',
+      '100',
+      '200',
+      '300',
+      '400',
+      '500',
+      '700',
+      '1000',
+      '1300',
+    )),
     '#description' => t('The animation speed in milliseconds.'),
     '#default_value' => variable_get('collapsiblock_slide_speed', 200),
   );
@@ -153,14 +163,14 @@ function collapsiblock_process_block(&$variables) {
     $classes[] = 'collapsiblock';
 
     $variables['title_prefix']['collapsiblock'] = array(
-      '#markup' => '<div id="' . $id . '" class="' . implode(' ', $classes) . '" data-collapsiblock-action="' . $action . '">'
+      '#markup' => '<div id="' . $id . '" class="' . implode(' ', $classes) . '" data-collapsiblock-action="' . $action . '">',
     );
 
     // Make sure the div closes before the contextual links if they're already
     // in the title_suffix
     $closure = array(
       'collapsiblock' => array(
-        '#markup' => '</div>'
+        '#markup' => '</div>',
       ),
     );
     $variables['title_suffix'] = $closure + $variables['title_suffix'];

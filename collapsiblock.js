@@ -1,15 +1,14 @@
-
-(function($) {
+(function ($) {
 
   Drupal.Collapsiblock = Drupal.Collapsiblock || {};
 
   Drupal.behaviors.collapsiblock = {
 
-    attach: function (context,settings) {
+    attach: function (context, settings) {
       var cookieData = Drupal.Collapsiblock.getCookieData();
       var slidetype = settings.collapsiblock.slide_type;
       var activePages = settings.collapsiblock.active_pages;
-      var slidespeed = parseInt(settings.collapsiblock.slide_speed,10);
+      var slidespeed = parseInt(settings.collapsiblock.slide_speed, 10);
       $('.collapsiblock').once('collapsiblock', function () {
         var id = this.id.replace(/_/g, '-');
         var titleElt = $(this);
@@ -25,9 +24,9 @@
 
           titleElt.target = $(this).siblings().not($('.contextual-links-wrapper'));
           $(titleElt)
-          .wrapInner('<a href="#' + id +'" role="link" />')
+          .wrapInner('<a href="#' + id + '" role="link" />')
           .click(function (e) {
-            e.preventDefault();  
+            e.preventDefault();
             var st = Drupal.Collapsiblock.getCookieData();
             if ($(this).is('.collapsiblockCollapsed')) {
               $(this).removeClass('collapsiblockCollapsed');
@@ -36,8 +35,8 @@
               }
               else {
                 $(this.target).animate({
-                  height:'show',
-                  opacity:'show'
+                  height: 'show',
+                  opacity: 'show'
                 }, slidespeed);
               }
 
@@ -53,8 +52,8 @@
               }
               else {
                 $(this.target).animate({
-                  height:'hide',
-                  opacity:'hide'
+                  height: 'hide',
+                  opacity: 'hide'
                 }, slidespeed);
               }
 
@@ -79,10 +78,12 @@
           });
           // Leave active blocks if Remember collapsed on active pages is false.
           // If the block is expanded, do nothing.
-          if (stat ==  4 || (cookieData[id] == 0 || (stat == 3 && cookieData[id] == undefined))) {
+          if (stat == 4 || (cookieData[id] == 0 || (stat == 3 && cookieData[id] == undefined))) {
             if (!$(this).find('a.active').size() || activePages === 1) {
-              // Allow block content to assign class 'collapsiblock-force-open' to it's content to force
-              // itself to stay open. E.g. useful if block contains a form that was just ajaxly updated and should be visible
+              // Allow block content to assign class 'collapsiblock-force-open'
+              // to it's content to force itself to stay open. E.g. useful if
+              // block contains a form that was just ajaxly updated and should
+              // be visible
               if (titleElt.target.hasClass('collapsiblock-force-open') || titleElt.target.find('.collapsiblock-force-open').size() > 0) {
                 return;
               }
