@@ -14,27 +14,21 @@ define('COLLAPSIBLOCK_ACTION_OPTIONS', array(
 ));
 
 /**
- * Implements hook_init().
+* Implements hook_init().
  */
 function collapsiblock_init() {
-    //load the settings
-    global $theme;
-    $current_theme = $theme ? $theme : variable_get('theme_default', 'bartik');
-    $theme_settings = variable_get(str_replace('/', '_', 'theme_' . $current_theme . '_settings'), array());
-    $theme_settings = array_merge(collapsiblock_default_settings(), $theme_settings, array());
-    drupal_add_library('system', 'jquery.cookie');
-    drupal_add_js(array(
-        'collapsiblock' => array(
-            'blocks' => array_change_key_case(variable_get('collapsiblock_settings', array()), CASE_LOWER),
-            'default_state' => variable_get('collapsiblock_default_state', 1),
-            'active_pages' => variable_get('collapsiblock_active_pages', FALSE),
-            'slide_type' => variable_get('collapsiblock_slide_type', 1),
-            'slide_speed' => variable_get('collapsiblock_slide_speed', 200),
-            'block_title' => $theme_settings['collapsiblock_title'],
-            'block' => $theme_settings['collapsiblock_block'],
-            'block_content' => $theme_settings['collapsiblock_content'],
-            )), array('type' => 'setting'
-        , 'scope' => JS_DEFAULT));
+  //load the settings
+  drupal_add_library('system', 'jquery.cookie');
+  drupal_add_js(array(
+    'collapsiblock' => array(
+      'active_pages' => variable_get('collapsiblock_active_pages', FALSE),
+      'slide_type' => variable_get('collapsiblock_slide_type', 1),
+      'slide_speed' => variable_get('collapsiblock_slide_speed', 200),
+    ),
+  ), array(
+    'type' => 'setting',
+    'scope' => JS_DEFAULT,
+  ));
 }
 
 /**
@@ -85,87 +79,39 @@ function collapsiblock_admin_settings($form, &$form_state) {
     '#description' => t('The animation speed in milliseconds.'),
     '#default_value' => variable_get('collapsiblock_slide_speed', 200),
   );
-  $form['collapsiblock_help'] = array(
-    '#markup' => t('If collapsiblock doesn\'t work out of the box, you can force CSS selectors on <a href="!url">appearance settings</a>.', array('!url' => url('admin/appearance/settings'))),
-  );
 
   $form = system_settings_form($form);
   return $form;
 }
 
-
-/**
- * Default theme's settings
- */
-function collapsiblock_default_settings() {
-  $defaults = array(
-    'collapsiblock_block' => 'div.block',
-    'collapsiblock_content' => 'div.content',
-    'collapsiblock_title' => ':header:first',
-  );
-  return $defaults;
-}
-
 /**
  * Implements hook_form_alter().
  */
-function collapsiblock_form_alter(&$form, $form_state, $form_id) {
-  if ($form_id == 'system_theme_settings') {
+function collapsiblock_form_block_admin_configure_alter(&$form, $form_state, $form_id) {
+  // Load statically cached block object used to display the form.
+  $block = block_load($form['module']['#value'], $form['delta']['#value']);
 
-    $settings = variable_get($form['var']['#value'], array());
-    $settings = array_merge(collapsiblock_default_settings(), $settings, array());
+  //$settings = variable_get('collapsiblock_settings', array());
+  $form['#submit'][] = 'collapsiblock_submit';
+  $form['collapsiblock'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Collapsible'),
+    '#collapsible' => TRUE,
+    '#weight' => -5,
+  );
 
-    $form['collapsiblock'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Collapsiblock selectors'),
-      '#description' => t("Force <a href='http://api.jquery.com/category/selectors/'>CSS selector</a> if collapsiblock doesn't work out of the box"),
-      '#weight' => 0,
-      '#attributes' => array('id' => 'collapsiblock_form'),
-    );
-    $form['collapsiblock']['collapsiblock_block'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Block'),
-      '#default_value' => $settings['collapsiblock_block'],
-    );
-    $form['collapsiblock']['collapsiblock_title'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Title'),
-      '#default_value' => $settings['collapsiblock_title'],
-    );
+  // Add the global default to the list of options for the per-block setting.
+  $options = COLLAPSIBLOCK_ACTION_OPTIONS;
+  $default = variable_get('collapsiblock_default_state', 1);
+  $default = $options[$default];
+  $options = array(0 => 'Global default, currently set to: ' . $default) + $options;
 
-    $form['collapsiblock']['collapsiblock_content'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Block content'),
-      '#default_value' => $settings['collapsiblock_content'],
-    );
-  }
-
-  if ($form_id == 'block_admin_configure') {
-    // Load statically cached block object used to display the form.
-    $block = block_load($form['module']['#value'], $form['delta']['#value']);
-
-    //$settings = variable_get('collapsiblock_settings', array());
-    $form['#submit'][] = 'collapsiblock_submit';
-    $form['collapsiblock'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Collapsible'),
-      '#collapsible' => TRUE,
-      '#weight' => -5
-    );
-
-    // Add the global default to the list of options for the per-block setting.
-    $options = COLLAPSIBLOCK_ACTION_OPTIONS;
-    $default = variable_get('collapsiblock_default_state', 1);
-    $default = $options[$default];
-    $options = array(0 => 'Global default, currently set to: ' . $default) + $options;
-
-    $form['collapsiblock']['collapsiblock_action'] = array(
-      '#type' => 'radios',
-      '#title' => t('Block collapse behavior'),
-      '#options' => $options,
-      '#default_value' => isset($block->collapsiblock_action) ? $block->collapsiblock_action : 0,
-    );
-  }
+  $form['collapsiblock']['collapsiblock_action'] = array(
+    '#type' => 'radios',
+    '#title' => t('Block collapse behavior'),
+    '#options' => $options,
+    '#default_value' => isset($block->collapsiblock_action) ? $block->collapsiblock_action : 0,
+  );
 }
 
 /**
@@ -187,19 +133,35 @@ function collapsiblock_submit($form, &$form_state) {
         ->execute();
     }
   }
-
-
-//  $settings = variable_get('collapsiblock_settings', array());
-//  $settings['block-' . str_replace('_', '-', $form_state['values']['module']) . '-' . drupal_strtolower(str_replace('_', '-', $form_state['values']['delta']))] = $form_state['values']['collapse_type'];
-//  variable_set('collapsiblock_settings', $settings);
 }
 
+/**
+ * Implements hook_preprocess_block().
+ *
+ * Inject Collapsiblock values into blocks that have collapsing turned on.
+ *
+ * @param $variables
+ */
 function collapsiblock_process_block(&$variables) {
-//  $id = 'collapsiblock-wrapper-' . $variables['id'];
-//  $variables['title_prefix']['collapsiblock'] = array(
-//    '#markup' => '<div class="collapsiblock" id="' . $id . '">'
-//  );
-//  $variables['title_suffix']['collapsiblock'] = array(
-//    '#markup' => '</div>'
-//  );
+  $block = $variables['block'];
+  $action = $block->collapsiblock_action;
+  if ($action == 0) {
+    $action = variable_get('collapsiblock_default_state', 1);
+  }
+  if ($action != 1) {
+    $id = 'collapsiblock-wrapper-' . $block->bid;
+    $classes[] = 'collapsiblock';
+    $variables['title_prefix']['collapsiblock'] = array(
+      '#markup' => '<div id="' . $id . '" class="' . implode(' ', $classes) . '" data-collapsiblock-action="' . $action . '">'
+    );
+
+    // Make sure the div closes before the contextual links if they're already
+    // in the title_suffix
+    $closure = array(
+      'collapsiblock' => array(
+        '#markup' => '</div>'
+      ),
+    );
+    $variables['title_suffix'] = $closure + $variables['title_suffix'];
+  }
 }

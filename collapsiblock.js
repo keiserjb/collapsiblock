@@ -8,7 +8,6 @@
     attach: function (context,settings) {
       var cookieData = Drupal.Collapsiblock.getCookieData();
       var slidetype = settings.collapsiblock.slide_type;
-      var defaultState = settings.collapsiblock.default_state;
       var activePages = settings.collapsiblock.active_pages;
       var slidespeed = parseInt(settings.collapsiblock.slide_speed,10);
       $('.collapsiblock').once('collapsiblock', function () {
@@ -16,14 +15,15 @@
         var titleElt = $(this);
         if (titleElt.size()) {
           titleElt = titleElt[0];
-          // Status values: 1 = not collapsible, 2 = collapsible and expanded, 3 = collapsible and collapsed, 4 = always collapsed
-          var stat = settings.collapsiblock.blocks[id] ? settings.collapsiblock.blocks[id] : defaultState;
+          // Status values: 1 = not collapsible, 2 = collapsible and expanded,
+          // 3 = collapsible and collapsed, 4 = always collapsed,
+          // 5 = always expanded
+          var stat = $(this).data('collapsiblock_action');
           if (stat == 1) {
             return;
           }
 
           titleElt.target = $(this).siblings().not($('.contextual-links-wrapper'));
-          console.log(titleElt.target);
           $(titleElt)
           .wrapInner('<a href="#' + id +'" role="link" />')
           .click(function (e) {

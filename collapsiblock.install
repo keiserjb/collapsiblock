@@ -47,7 +47,6 @@ function collapsiblock_schema_alter(&$schema) {
   if (isset($schema['block'])) {
     $schema['block']['fields']['collapsiblock_action'] = array(
       'type' => 'int',
-      'length' => 1,
       'not null' => TRUE,
       'default' => 0,
       'description' => 'Integer containing the key for the collapse action.',
