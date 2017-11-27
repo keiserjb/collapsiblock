@@ -11,9 +11,8 @@
       var slidespeed = parseInt(settings.collapsiblock.slide_speed, 10);
       $('.collapsiblock').once('collapsiblock', function () {
         var id = this.id.split("-").pop();
-        var titleElt = $(this);
-        if (titleElt.size()) {
-          titleElt = titleElt[0];
+        var titleElt = $(this)[0];
+        if (titleElt.children.length > 0) {
           // Status values: 1 = not collapsible, 2 = collapsible and expanded,
           // 3 = collapsible and collapsed, 4 = always collapsed,
           // 5 = always expanded
