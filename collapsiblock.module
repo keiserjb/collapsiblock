@@ -6,7 +6,7 @@
  */
 
 // Scalar (JSON) constant for php 5.*
-define('COLLAPSIBLOCK_ACTION_OPTIONS', json_encode(array(
+define('COLLAPSIBLOCK_ACTION_OPTIONS', serialize(array(
   1 => t('None.'),
   2 => t('Collapsible, expanded by default.'),
   3 => t('Collapsible, collapsed by default.'),
@@ -57,7 +57,7 @@ function collapsiblock_admin_settings($form, &$form_state) {
   $form['collapsiblock_default_state'] = array(
     '#type' => 'radios',
     '#title' => t('Default block collapse behavior'),
-    '#options' => json_decode(COLLAPSIBLOCK_ACTION_OPTIONS),
+    '#options' => unserialize(COLLAPSIBLOCK_ACTION_OPTIONS),
     '#default_value' => variable_get('collapsiblock_default_state', 1),
   );
   $form['collapsiblock_active_pages'] = array(
@@ -112,7 +112,7 @@ function collapsiblock_form_block_admin_configure_alter(&$form, $form_state, $fo
   );
 
   // Add the global default to the list of options for the per-block setting.
-  $options = json_decode(COLLAPSIBLOCK_ACTION_OPTIONS);
+  $options = unserialize(COLLAPSIBLOCK_ACTION_OPTIONS);
   $default = variable_get('collapsiblock_default_state', 1);
   $default = $options[$default];
   $options = array(0 => 'Global default, currently set to: ' . $default) + $options;
@@ -153,7 +153,7 @@ function collapsiblock_submit($form, &$form_state) {
  *
  * @param $variables
  */
-function collapsiblock_process_block(&$variables) {
+function collapsiblock_preprocess_block(&$variables) {
   $block = $variables['block'];
   $action = $block->collapsiblock_action;
   if ($action == 0) {
