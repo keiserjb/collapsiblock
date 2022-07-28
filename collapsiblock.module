@@ -182,9 +182,9 @@ function collapsiblock_form_submit($form, &$form_state) {
     // Only save if value has changed.
     if (isset($form_state['values']['collapsiblock']['collapsiblock_action'])) {
 
-       /*&& $form['collapsiblock']['collapsiblock_action']['#default_value']
-      != $form_state['values']['collapsiblock_action'])*/
-      
+      /*&& $form['collapsiblock']['collapsiblock_action']['#default_value']
+     != $form_state['values']['collapsiblock_action'])*/
+
       /* {
         db_update('block')
           ->fields(array('collapsiblock_action' => $form_state['values']['collapsiblock_action']))
@@ -257,7 +257,7 @@ function collapsiblock_preprocess_block(&$variables) {
         ),
       );
       //$variables['title_suffix'] = $closure + $variables['title_suffix'];
-     $variables['title_suffix'] = '</div>';
+      $variables['title_suffix'] = '</div>';
     }
   }
 }
