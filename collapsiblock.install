@@ -7,8 +7,9 @@
 
 /**
  * Implements hook_install().
+().
  */
-function collapsiblock_install() {
+/*function collapsiblock_install() {
   $schema['block'] = array();
   collapsiblock_schema_alter($schema);
   foreach ($schema['block']['fields'] as $field => $spec) {
@@ -19,30 +20,32 @@ function collapsiblock_install() {
       db_add_field('block', $field, $spec);
     }
   }
-}
+  // Dynamically generated variable data was detected on the following lines.
+}*/
 
 /**
  * Implements hook_uninstall.
+().
  */
+
 function collapsiblock_uninstall() {
-  variable_del('collapsiblock_settings');
-  variable_del('collapsiblock_default_state');
-  variable_del('collapsiblock_slide_type');
-  variable_del('collapsiblock_slide_speed');
-  variable_del('collapsiblock_active_pages');
-  $schema['block'] = array();
+  config_clear('collapsiblock.settings', 'collapsiblock_default_state');
+  config_clear('collapsiblock.settings', 'collapsiblock_slide_type');
+  config_clear('collapsiblock.settings', 'collapsiblock_slide_speed');
+  /*$schema['block'] = array();
   collapsiblock_schema_alter($schema);
   foreach ($schema['block']['fields'] as $field => $specs) {
     db_drop_field('block', $field);
-  }
+  }*/
 }
 
 /**
  * Implements hook_schema_alter().
+().
  *
  * Other modules, such as i18n_block also modify the block database table.
  */
-function collapsiblock_schema_alter(&$schema) {
+/*function collapsiblock_schema_alter(&$schema) {
   if (isset($schema['block'])) {
     $schema['block']['fields']['collapsiblock_action'] = array(
       'type' => 'int',
@@ -51,18 +54,26 @@ function collapsiblock_schema_alter(&$schema) {
       'description' => 'Integer containing the key for the collapse action.',
     );
   }
-}
+}*/
+
+
 
 /**
- * Transition to 7.x-2.x
+ * Migrate collapsiblock variables to config.
  */
-function collapsiblock_update_7200() {
-  variable_del('collapsiblock_settings');
-  if (!db_field_exists('block', 'block_class')) {
-    $schema['block'] = array();
-    collapsiblock_schema_alter($schema);
-    foreach ($schema['block']['fields'] as $field => $specs) {
-      db_add_field('block', $field, $specs);
-    }
-  }
+
+function collapsiblock_update_1000() {
+  $config = config('collapsiblock.settings');
+  $config->set('collapsiblock_default_state', update_variable_get('collapsiblock_default_state', 'None'));
+  $config->set('collapsiblock_active_pages', update_variable_get('collapsiblock_active_pages', array()));
+  $config->set('collapsiblock_slide_type', update_variable_get('collapsiblock_slide_type', 'Slide'));
+  $config->set('collapsiblock_slide_speed', update_variable_get('collapsiblock_slide_speed', '200'));
+
+  $config->save();
+
+  update_variable_del('collapsiblock_default_state');
+  update_variable_del('collapsiblock_active_pages');
+  update_variable_del('collapsiblock_slide_type');
+  update_variable_del('collapsiblock_slide_speed');
 }
+
