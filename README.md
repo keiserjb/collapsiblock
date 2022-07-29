@@ -1,4 +1,4 @@
-#Collapsiblock
+# Collapsiblock
 
 Makes blocks collapsible.
 
