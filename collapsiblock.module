@@ -146,6 +146,12 @@ function collapsiblock_form_alter(&$form, $form_state, $form_id) {
       '#title' => t('Collapsible'),
       '#collapsible' => TRUE,
       '#collapsed' => TRUE,
+      '#states' => array(
+        'invisible' => array(
+          'form.layout-block-configure-form :input[name="title_display"]' =>
+          array('value' => LAYOUT_TITLE_NONE),
+        ),
+      ),
     );
 
     // Add the global default to the list of options for the per-block setting.
