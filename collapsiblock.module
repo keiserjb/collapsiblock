@@ -241,9 +241,11 @@ function collapsiblock_preprocess_block(&$variables) {
       $id = 'collapsiblock-wrapper-' . $block_delta;
       $classes[] = 'collapsiblock';
 
-      $variables['title_prefix']= [
+      /*$variables['title_prefix'] = [
         '#markup' => '<div id="' . $id . '" class="' . implode(' ', $classes) . '" data-collapsiblock-action="' . $action . '">',
-      ];
+      ];*/
+
+      $variables['title_prefix'] = $variables['title_prefix'] . '<div id="' . $id . '" class="' . implode(' ', $classes) . '" data-collapsiblock-action="' . $action . '">';
 
       /*$variables['title_prefix']['collapsiblock'] = array(
         '#markup' => '<div id="' . $id . '" class="' . implode(' ', $classes) . '" data-collapsiblock-action="' . $action . '">',
@@ -252,12 +254,12 @@ function collapsiblock_preprocess_block(&$variables) {
       // Make sure the div closes before the contextual links if they're already
       // in the title_suffix
       $closure = array(
-        'collapsiblock' => array(
+       //collapsiblock' => array(
           '#markup' => '</div>',
-        ),
+       //,
       );
       //$variables['title_suffix'] = $closure + $variables['title_suffix'];
-      $variables['title_suffix'] = '</div>';
+      $variables['title_suffix'] = '</div>' . $variables['title_suffix'];
     }
   }
 }
