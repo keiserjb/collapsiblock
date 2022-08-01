@@ -1,29 +1,6 @@
 <?php
 
 /**
- * @file
- * Install hooks for Collapsiblock.
- */
-
-/**
- * Implements hook_install().
-().
- */
-/*function collapsiblock_install() {
-  $schema['block'] = array();
-  collapsiblock_schema_alter($schema);
-  foreach ($schema['block']['fields'] as $field => $spec) {
-    if (db_field_exists('block', $field)) {
-      watchdog('system', 'Module install: Attempt to recreate field: "%field", when it already exists.', array('%field' => $field), WATCHDOG_WARNING);
-    }
-    else {
-      db_add_field('block', $field, $spec);
-    }
-  }
-  // Dynamically generated variable data was detected on the following lines.
-}*/
-
-/**
  * Implements hook_uninstall.
 ().
  */
@@ -32,30 +9,7 @@ function collapsiblock_uninstall() {
   config_clear('collapsiblock.settings', 'collapsiblock_default_state');
   config_clear('collapsiblock.settings', 'collapsiblock_slide_type');
   config_clear('collapsiblock.settings', 'collapsiblock_slide_speed');
-  /*$schema['block'] = array();
-  collapsiblock_schema_alter($schema);
-  foreach ($schema['block']['fields'] as $field => $specs) {
-    db_drop_field('block', $field);
-  }*/
 }
-
-/**
- * Implements hook_schema_alter().
-().
- *
- * Other modules, such as i18n_block also modify the block database table.
- */
-/*function collapsiblock_schema_alter(&$schema) {
-  if (isset($schema['block'])) {
-    $schema['block']['fields']['collapsiblock_action'] = array(
-      'type' => 'int',
-      'not null' => TRUE,
-      'default' => 0,
-      'description' => 'Integer containing the key for the collapse action.',
-    );
-  }
-}*/
-
 
 
 /**
