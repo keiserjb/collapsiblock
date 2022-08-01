@@ -1,8 +1,11 @@
 div .collapsiblock a{
   background: url(../images/expanded.png) no-repeat left;
   display: block;
+  margin-right: 10px;
+  background-size: 10px;
 }
 
 div .collapsiblockCollapsed a{
   background: url(../images/collapsed-rtl.png) no-repeat left;
+  background-size: 10px;
 }
