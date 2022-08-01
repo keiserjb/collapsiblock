@@ -245,7 +245,8 @@ function collapsiblock_preprocess_block(&$variables) {
         '#markup' => '<div id="' . $id . '" class="' . implode(' ', $classes) . '" data-collapsiblock-action="' . $action . '">',
       ];*/
 
-      $variables['title_prefix'] = $variables['title_prefix'] . '<div id="' . $id . '" class="' . implode(' ', $classes) . '" data-collapsiblock-action="' . $action . '">';
+      $variables['title_prefix'] = $variables['title_prefix'] . '<div id="' . $id . '" 
+      class="' . implode(' ', $classes) . '" data-collapsiblock-action="' . $action . '">';
 
       /*$variables['title_prefix']['collapsiblock'] = array(
         '#markup' => '<div id="' . $id . '" class="' . implode(' ', $classes) . '" data-collapsiblock-action="' . $action . '">',
