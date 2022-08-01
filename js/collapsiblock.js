@@ -23,48 +23,53 @@
 
           titleElt.target = $(this).siblings().not($('.contextual-links-wrapper'));
           $(titleElt)
-          .wrapInner('<a href="#collapse-' + id + '" role="link" />')
-          .click(function (e) {
-            if ($(this).is('.collapsiblockCollapsed')) {
-              $(this).removeClass('collapsiblockCollapsed');
-              if (slidetype == 1) {
-                $(this.target).slideDown(slidespeed).attr('aria-hidden', false);
+            .wrapInner('<a href="#collapse-' + id + '" role="link" aria-controls="collapse-content-' + id + '" aria-expanded="false"/>')
+            .click(function (e) {
+              if ($(this).is('.collapsiblockCollapsed')) {
+                $(this).removeClass('collapsiblockCollapsed');
+                $(this).find("a").attr('aria-expanded', true);
+                if (slidetype == 1) {
+                  $(this.target).slideDown(slidespeed).attr('aria-hidden', false);
+                }
+                else {
+                  $(this.target).animate({
+                    height: 'show',
+                    opacity: 'show'
+                  }, slidespeed);
+                }
+                // Set Focus on expanded content
+                document.getElementById("collapse-content-" + id).focus();
+
+                // Don't save cookie data if the block is always collapsed.
+                if (stat != 4 && stat != 5) {
+                  cookieData[id] = 1;
+                }
               }
               else {
-                $(this.target).animate({
-                  height: 'show',
-                  opacity: 'show'
-                }, slidespeed);
-              }
+                $(this).addClass('collapsiblockCollapsed');
+                $(this).find("a").attr('aria-expanded', false);
+                if (slidetype == 1) {
+                  $(this.target).slideUp(slidespeed).attr('aria-hidden', true);
+                }
+                else {
+                  $(this.target).animate({
+                    height: 'hide',
+                    opacity: 'hide'
+                  }, slidespeed);
+                }
 
-              // Don't save cookie data if the block is always collapsed.
-              if (stat != 4 && stat != 5) {
-                cookieData[id] = 1;
+                // Don't save cookie data if the block is always collapsed.
+                if (stat != 4 && stat != 5) {
+                  cookieData[id] = 0;
+                }
               }
-            }
-            else {
-              $(this).addClass('collapsiblockCollapsed');
-              if (slidetype == 1) {
-                $(this.target).slideUp(slidespeed).attr('aria-hidden', true);
-              }
-              else {
-                $(this.target).animate({
-                  height: 'hide',
-                  opacity: 'hide'
-                }, slidespeed);
-              }
-
-              // Don't save cookie data if the block is always collapsed.
-              if (stat != 4 && stat != 5) {
-                cookieData[id] = 0;
-              }
-            }
-            // Stringify the object in JSON format for saving in the cookie.
-            cookieString = JSON.stringify(cookieData);
-            $.cookie('collapsiblock', cookieString, {
-              path: settings.basePath
+              // Stringify the object in JSON format for saving in the cookie.
+              cookieString = JSON.stringify(cookieData);
+              $.cookie('collapsiblock', cookieString, {
+                path: settings.basePath
+              });
             });
-          });
+
           // Leave active blocks if Remember collapsed on active pages is false.
           // If the block is expanded, do nothing.
           if (stat == 4 || (cookieData[id] == 0 || (stat == 3 && cookieData[id] == undefined))) {
@@ -80,21 +85,35 @@
               $(titleElt.target).hide();
             }
           }
+          //Set id for Aria-controls
+          this.target[0]['id'] = 'collapse-content-' + id;
+
+          //Set tabindex so element is focusable
+          $(this.target).attr('tabindex', '-1');
+
+          // Set Aria-expanded for expanded defaults and following cookies processing
+          if (stat == 5 || stat == 2) {
+            if ( stat == 2 && $(this).is(".collapsiblockCollapsed")) {
+              return; //Collapsed
+            } else {
+              $(this).find("a").attr('aria-expanded', true); //Expanded
+            }
+          }
         }
       });
     }
 
-  };
+};
 
-  Backdrop.Collapsiblock.getCookieData = function () {
-    if ($.cookie) {
-      var cookieString = $.cookie('collapsiblock');
-      return cookieString ? $.parseJSON(cookieString) : {};
-    }
-    else {
-      return '';
-    }
-  };
+Backdrop.Collapsiblock.getCookieData = function () {
+  if ($.cookie) {
+    var cookieString = $.cookie('collapsiblock');
+    return cookieString ? $.parseJSON(cookieString) : {};
+  }
+  else {
+    return '';
+  }
+};
 
 
 })(jQuery);
