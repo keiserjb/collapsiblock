@@ -8,4 +8,5 @@ div .collapsiblock a{
 div .collapsiblockCollapsed a{
   background: url(../images/collapsed-rtl.png) no-repeat left;
   background-size: 10px;
+  min-height: 75px;
 }
