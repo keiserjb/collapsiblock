@@ -73,12 +73,12 @@
           // Leave active blocks if Remember collapsed on active pages is false.
           // If the block is expanded, do nothing.
           if (stat == 4 || (cookieData[id] == 0 || (stat == 3 && cookieData[id] == undefined))) {
-            if (!$(this).find('a.active').size() || activePages === 1) {
+            if (!$(this).find('a.active').length || activePages === 1) {
               // Allow block content to assign class 'collapsiblock-force-open'
               // to it's content to force itself to stay open. E.g. useful if
               // block contains a form that was just ajaxly updated and should
               // be visible
-              if (titleElt.target.hasClass('collapsiblock-force-open') || titleElt.target.find('.collapsiblock-force-open').size() > 0) {
+              if (titleElt.target.hasClass('collapsiblock-force-open') || titleElt.target.find('.collapsiblock-force-open').length > 0) {
                 return;
               }
               $(titleElt).addClass('collapsiblockCollapsed');
